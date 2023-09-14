@@ -7,38 +7,26 @@ use hex_slice::AsHex;
 
 use rplidar_drv::{Health, RplidarDevice, RplidarHostProtocol};
 use rpos_drv::{Channel, RposError};
-use serialport::prelude::*;
+use serialport::{SerialPort};
 use std::time::Duration;
 
 use std::env;
 
+fn get_port() -> Box<dyn SerialPort> {
+    const SERIAL_PORT1: &str = "/dev/tty.SLAB_USBtoUART";
+
+    println!("{:#?}", serialport::available_ports().unwrap());
+    let mut port = serialport::new(SERIAL_PORT1, 115_200)
+        .timeout(Duration::from_millis(10))
+        .open()
+        .expect("Failed to open port");
+    port
+}
+
 fn main() {
-    let args: Vec<String> = env::args().collect();
-
-    if args.len() < 2 || args.len() > 3 {
-        println!("Usage: {} <serial_port> [baudrate]", args[0]);
-        println!("    baudrate defaults to 115200");
-        return;
-    }
-
-    let serial_port = &args[1];
-    let baud_rate = args.get(2).unwrap_or(&String::from("115200"))
-        .parse::<u32>()
-        .expect("Invalid value for baudrate");
-
-    let s = SerialPortSettings {
-        baud_rate: baud_rate,
-        data_bits: DataBits::Eight,
-        flow_control: FlowControl::None,
-        parity: Parity::None,
-        stop_bits: StopBits::One,
-        timeout: Duration::from_millis(1),
-    };
-
-    let mut serial_port =
-        serialport::open_with_settings(serial_port, &s).expect("failed to open serial port");
-
-    serial_port
+    let mut serial_port =get_port();
+    
+     serial_port
         .write_data_terminal_ready(false)
         .expect("failed to clear DTR");
 
@@ -108,10 +96,10 @@ fn main() {
         Ok(support) if support == true => {
             println!("Accessory board is detected and support motor control, starting motor...");
             rplidar.set_motor_pwm(600).expect("failed to start motor");
-        },
+        }
         Ok(_) => {
             println!("Accessory board is detected, but doesn't support motor control");
-        },
+        }
         Err(_) => {
             println!("Accessory board isn't detected");
         }
@@ -130,7 +118,11 @@ fn main() {
     loop {
         match rplidar.grab_scan() {
             Ok(scan) => {
-                println!("[{:6}s] {} points per scan", start_time.elapsed().as_secs(), scan.len());
+                println!(
+                    "[{:6}s] {} points per scan",
+                    start_time.elapsed().as_secs(),
+                    scan.len()
+                );
 
                 /*
                  for scan_point in scan {
