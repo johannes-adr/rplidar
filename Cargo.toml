@@ -6,7 +6,7 @@ license = "BSD-2-Clause"
 repository = "https://github.com/cnwzhjs/rplidar.rs"
 keywords = ["Slamtec", "Rplidar", "Driver"]
 authors = ["Tony Huang <tony@slamtec.com>"]
-edition = "2018"
+edition = "2021"
 documentation = "https://docs.rs/rplidar_drv"
 exclude = [".gitignore", ".travis.yml", ".cargo/config"]
 
@@ -18,16 +18,12 @@ name = "rplidar_drv"
 path = "src/lib.rs"
 
 [dependencies]
-rpos_drv = "0.2.0"
+failure = "0.1.5"
 byteorder = "1.2.7"
 crc = "1.8.1"
 
 [workspace]
 members = [
     ".",
-    "rpos_drv",
     "examples/ultra_simple"
 ]
-
-[patch.crates-io]
-rpos_drv = { path = "rpos_drv" }

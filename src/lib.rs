@@ -4,7 +4,10 @@
 
 extern crate byteorder;
 extern crate crc;
-extern crate rpos_drv;
+
+mod rpos_drv;
+
+
 
 mod internals;
 mod answers;
@@ -12,10 +15,11 @@ mod capsuled_parser;
 mod ultra_capsuled_parser;
 mod checksum;
 mod cmds;
-mod errors;
+pub mod errors;
 mod prelude;
 mod protocol;
 pub mod utils;
+
 
 pub use self::prelude::*;
 pub use self::errors::*;
@@ -422,7 +426,7 @@ where
                     work_flags: options.options as u16,
                     param: 0,
                 };
-                self.start_express_scan(&payload)?;
+                self.start_express_scan(&payload)?
             }
         }
 
